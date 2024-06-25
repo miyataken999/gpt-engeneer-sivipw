@@ -1,0 +1,164 @@
+
+2024-06-13T16:44:17.428035
+================================ System Message ================================
+
+You will get information about a codebase that is currently on disk in the current folder.
+The user will ask you to write a script that runs the code in a specific way.
+You will answer with code blocks that include all the necessary terminal commands.
+Do not install globally. Do not use sudo.
+Do not explain the code, just give the commands.
+Do not use placeholders, use example values (like . for a folder argument) if necessary.
+
+
+================================ Human Message =================================
+
+
+        Make a unix script that
+        a) installs dependencies
+        b) runs all necessary parts of the codebase (in parallel if necessary)
+        
+Information about the codebase:
+
+```
+File: structure
+1 banking_system
+2 requirements.txt
+3 src
+4 __init__.py
+5 account.py
+6 bank.py
+7 main.py
+8 tests
+9 __init__.py
+10 test_account.py
+11 test_bank.py
+
+File: requirements.txt
+1 pytest
+2 dataclasses
+
+File: src/__init__.py
+1 # empty file
+
+File: src/account.py
+1 from dataclasses import dataclass
+2 
+3 @dataclass
+4 class Account:
+5     """Represents a bank account"""
+6     account_number: int
+7     balance: float = 0.0
+8 
+9     def deposit(self, amount: float) -> None:
+10         """Deposit money into the account"""
+11         self.balance += amount
+12 
+13     def withdraw(self, amount: float) -> None:
+14         """Withdraw money from the account"""
+15         if amount > self.balance:
+16             raise ValueError("Insufficient balance")
+17         self.balance -= amount
+18 
+19     def get_balance(self) -> float:
+20         """Get the current balance of the account"""
+21         return self.balance
+
+File: src/bank.py
+1 from .account import Account
+2 
+3 class Bank:
+4     """Represents a bank"""
+5     def __init__(self):
+6         self.accounts = {}
+7 
+8     def create_account(self, account_number: int) -> Account:
+9         """Create a new account"""
+10         if account_number in self.accounts:
+11             raise ValueError("Account already exists")
+12         account = Account(account_number)
+13         self.accounts[account_number] = account
+14         return account
+15 
+16     def get_account(self, account_number: int) -> Account:
+17         """Get an existing account"""
+18         return self.accounts.get(account_number)
+19 
+20     def list_accounts(self) -> list:
+21         """Get a list of all accounts"""
+22         return list(self.accounts.values())
+
+File: src/main.py
+1 from .bank import Bank
+2 
+3 def main():
+4     bank = Bank()
+5     account = bank.create_account(1234)
+6     account.deposit(100.0)
+7     print(account.get_balance())  # 100.0
+8     account.withdraw(50.0)
+9     print(account.get_balance())  # 50.0
+10 
+11 if __name__ == "__main__":
+12     main()
+
+File: tests/__init__.py
+1 # empty file
+
+File: tests/test_account.py
+1 import pytest
+2 from src.account import Account
+3 
+4 def test_account_creation():
+5     account = Account(1234)
+6     assert account.balance == 0.0
+7 
+8 def test_deposit():
+9     account = Account(1234)
+10     account.deposit(100.0)
+11     assert account.balance == 100.0
+12 
+13 def test_withdraw():
+14     account = Account(1234)
+15     account.deposit(100.0)
+16     account.withdraw(50.0)
+17     assert account.balance == 50.0
+
+File: tests/test_bank.py
+1 import pytest
+2 from src.bank import Bank
+3 
+4 def test_create_account():
+5     bank = Bank()
+6     account = bank.create_account(1234)
+7     assert account.account_number == 1234
+8 
+9 def test_get_account():
+10     bank = Bank()
+11     account = bank.create_account(1234)
+12     retrieved_account = bank.get_account(1234)
+13     assert retrieved_account == account
+14 
+15 def test_list_accounts():
+16     bank = Bank()
+17     bank.create_account(1234)
+18     bank.create_account(5678)
+19     accounts = bank.list_accounts()
+20     assert len(accounts) == 2
+
+```
+
+================================== Ai Message ==================================
+
+Here is the Unix script that installs dependencies and runs the codebase:
+```
+#!/bin/bash
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tests in parallel
+pytest -n 2 tests/
+
+# Run main script
+python src/main.py
+```
